@@ -1,0 +1,46 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import java.net.URL?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.PasswordField?>
+<AnchorPane fx:controller="Controller"
+            xmlns:fx="http://javafx.com/fxml" fx:id="mainAncor">
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <StackPane fx:id="mainStack"  AnchorPane.leftAnchor="50" AnchorPane.bottomAnchor="150" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="25">
+    <ScrollPane fx:id="scroll" >
+        <VBox fx:id="vbox" spacing="10.0">
+
+        </VBox>
+    </ScrollPane>
+    </StackPane>
+<!--    <TextArea disable="true" fx:id="chatArea" AnchorPane.leftAnchor="50" AnchorPane.bottomAnchor="175" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="25"></TextArea>-->
+    <TextField fx:id="inputField" AnchorPane.bottomAnchor="120" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50"
+               onAction="#sendButton" visible="false" managed="false"/>
+
+    <Button id="sendButton" fx:id="buttonPane" text="Отправить сообщение" AnchorPane.bottomAnchor="50"  AnchorPane.leftAnchor="50"
+            AnchorPane.rightAnchor="50" onAction="#sendButton" visible="false" managed="false"/>
+
+    <HBox fx:id="loginForm" prefWidth="${mainAncor.width}" AnchorPane.bottomAnchor="40" AnchorPane.rightAnchor="50" AnchorPane.leftAnchor="50" spacing="10">
+        <TextField promptText="Логин" HBox.hgrow="ALWAYS" fx:id="login"/>
+        <PasswordField promptText="Пароль" HBox.hgrow="ALWAYS" fx:id="pass"/>
+        <Button text="Войти" fx:id="loginButton"  HBox.hgrow="ALWAYS"  onAction="#login"/>
+    </HBox>
+</AnchorPane>

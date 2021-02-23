@@ -1,0 +1,65 @@
+.root {
+    -fx-font-size: 16;
+    -fx-background-image: url(../image/chat.png);
+    -fx-background-size: 100% 100%;
+}
+
+#chatArea {
+    -fx-text-fill: black;
+    -fx-highlight-text-fill: blue;
+    -fx-font-size: 14;
+}
+
+#chatArea .content {
+    -fx-background-color: #E0FFFF;
+}
+
+#chatArea:disabled {
+    -fx-font-size: 14;
+    -fx-text-fill: #000000;
+    -fx-prompt-text-fill: #000000;
+    -fx-opacity: 1.0;
+}
+
+#sendButton {
+    -fx-background-color: linear-gradient(from 100% 100% to 20% 10%, #066bb8, #2657ae);
+    -fx-background-radius: 10;
+    -fx-text-fill: #fff;
+}
+#sendButton:pressed {
+    -fx-effect:dropshadow( three-pass-box, #817d7d, 5,0.3, 2, 2);
+}
+
+#scroll {
+    /*-fx-background: #E0FFFF;*/
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+#mainStack {
+    -fx-background-radius: 10;
+    -fx-border-radius: 8 8 0 0;
+    -fx-background-color: #e0ffff;
+    -fx-border-color: #1f1f1f;
+}
+
+#buttonPane {
+    -fx-padding: 20;
+
+}
+#inputField{
+    -fx-border-color: #1f1f1f;
+    -fx-background-radius: 0 0 8 8;
+    -fx-border-radius: 0 0 10 10;
+    -fx-border-width: 0 1 1 1;
+}
+
+#inputField:focused{
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+#loginButton{
+    -fx-min-width:100;
+}
