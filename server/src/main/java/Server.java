@@ -52,9 +52,17 @@ public class Server {
         users.put(new LinkedList<>(Arrays.asList("zxc", "zxc")), "nick3");
     }
 
-//    public void sendPersonalMessage(String nick, String message, String sender){
-//        for (ClientHandler client : clients) {
-//            client.sendPersonalMsg(nick, message, sender);
-//        }
-//    }
+    public void sendPersonalMessage(String nick, String message, String sender, ClientHandler senderHandler){
+        boolean successSendMessage = false;
+        for (ClientHandler client : clients) {
+            if(client.sendPersonalMsg(nick, message, sender, senderHandler)){
+                successSendMessage = true;
+                break;
+            }
+        }
+        if(!successSendMessage){
+            senderHandler.sendMsg("Пользователь "+nick+" не в сети");
+        }
+
+    }
 }
