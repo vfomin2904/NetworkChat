@@ -8,9 +8,10 @@ public class Server {
 
     private final int PORT = 8981;
     private List<ClientHandler> clients = new ArrayList<>();
-    private Map<LinkedList<String>, String> users = new HashMap<>();
+    private UsersService users;
 
     Server() {
+        users = new UsersListService();
         fillUsers();
         try (ServerSocket server = new ServerSocket(PORT);) {
             System.out.println("Server started");
@@ -43,13 +44,13 @@ public class Server {
     }
 
     public String authorize(String login, String pass){
-        return users.getOrDefault(new LinkedList<>(Arrays.asList(login, pass)), "");
+        return users.getUserByLoginAndPassword(login, pass);
     }
 
     private void fillUsers(){
-        users.put(new LinkedList<>(Arrays.asList("qwe", "qwe")), "nick1");
-        users.put(new LinkedList<>(Arrays.asList("asd", "asd")), "nick2");
-        users.put(new LinkedList<>(Arrays.asList("zxc", "zxc")), "nick3");
+        users.addUser("qwe", "qwe", "nick1");
+        users.addUser("asd", "asd", "nick2");
+        users.addUser("zxc", "zxc", "nick3");
     }
 
     public void sendPersonalMessage(String nick, String message, String sender, ClientHandler senderHandler){
