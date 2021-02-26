@@ -10,7 +10,7 @@ public class ClientHandler {
     public Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
-    private String nick;
+    private String nick = "";
 
 
     public ClientHandler(Server server, Socket socket) throws IOException {
@@ -42,12 +42,12 @@ public class ClientHandler {
                                 }
                             }
                         }
-//                        else if(msg.startsWith("/w")){
-//                            String[] message = msg.split("\s", 3);
-//                            if(message.length == 3) {
-//                                server.sendPersonalMessage(message[1], message[2], nick);
-//                            }
-//                        }
+                        else if(msg.startsWith("/w")){
+                            String[] message = msg.split("\s", 3);
+                            if(message.length == 3) {
+                                server.sendPersonalMessage(message[1], message[2], nick, this);
+                            }
+                        }
                         continue;
                     }
                     System.out.println("Client: " + msg);
@@ -75,13 +75,14 @@ public class ClientHandler {
         }
     }
 
-//    public void sendPersonalMsg(String nickname, String message, String sender){
-//        if(nick.equals(nickname)){
-//            sendMsg(sender+"(personal) : "+message);
-//        } else if(nick.equals(sender)){
-//            sendMsg(sender+"(personal for "+nickname+") : "+message);
-//        }
-//    }
+    public boolean sendPersonalMsg(String nickname, String message, String sender, ClientHandler senderHandler){
+        if(nick.equals(nickname)){
+            sendMsg(sender+"(personal) : "+message);
+            senderHandler.sendMsg(sender+"(personal for "+nickname+") : "+message);
+            return true;
+        }
+        return false;
+    }
 
 
 }
