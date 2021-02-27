@@ -3,6 +3,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler {
 
@@ -19,6 +21,7 @@ public class ClientHandler {
         this.socket = socket;
         this.in = new DataInputStream(socket.getInputStream());
         this.out = new DataOutputStream(socket.getOutputStream());
+        socket.setSoTimeout(120000);
 
         new Thread(() -> {
             try {
@@ -37,6 +40,7 @@ public class ClientHandler {
                                     if(server.checkConnect(nick)){
                                         server.subscribe(this);
                                         out.writeUTF(Commands.AUTH_OK+" " + nick);
+                                        socket.setSoTimeout(0);
                                     }
                                     else{
                                         out.writeUTF(Commands.USER_ALREADY_CONNECT+" " + nick);
@@ -46,7 +50,7 @@ public class ClientHandler {
                                 }
                             }
                         }
-                        else if(msg.startsWith("/w")){
+                        else if(msg.startsWith(Commands.PRIVATE_MESSAGE)){
                             String[] message = msg.split("\s", 3);
                             if(message.length == 3) {
                                 server.sendPersonalMessage(message[1], message[2], nick, this);
@@ -64,8 +68,15 @@ public class ClientHandler {
                     server.sendMsg(msg);
 
                 }
-            } catch (IOException e) {
-//                    e.printStackTrace();
+            }catch(SocketTimeoutException e){
+                try {
+                    out.writeUTF(Commands.END);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+            catch (IOException e) {
+                    e.printStackTrace();
             } finally {
                 try {
                     socket.close();

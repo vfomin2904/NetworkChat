@@ -127,7 +127,10 @@ public class Controller implements Initializable {
                         try {
                             String msg = in.readUTF();
                             if (msg.startsWith("/")) {
-                                if (msg.startsWith(Commands.AUTH_OK)) {
+                                if (msg.startsWith(Commands.END)) {
+                                    printMsg("Сервер закрыл соединение");
+                                    break;
+                                } else if (msg.startsWith(Commands.AUTH_OK)) {
                                     String[] words = msg.split("\s", 2);
                                     nick = words[1];
                                     authorize = true;
