@@ -31,17 +31,17 @@
 }
 
 #scroll {
-    /*-fx-background: #E0FFFF;*/
     -fx-padding: 10;
-    -fx-background-color: transparent;
-    -fx-background: transparent;
+    -fx-background: #e0ffff;
+    -fx-border-color: #1f1f1f;
+    -fx-border-width: 0 0 0 0;
+    -fx-background-radius: 8 8 8 8;
 }
 
 #mainStack {
     -fx-background-radius: 10;
-    -fx-border-radius: 8 8 0 0;
-    -fx-background-color: #e0ffff;
-    -fx-border-color: #1f1f1f;
+    -fx-border-radius: 8 0 0 8;
+
 }
 
 #buttonPane {
@@ -50,7 +50,7 @@
 }
 #inputField{
     -fx-border-color: #1f1f1f;
-    -fx-background-radius: 0 0 8 8;
+    /*-fx-background-radius: 0 0 8 8;*/
     -fx-border-radius: 0 0 10 10;
     -fx-border-width: 0 1 1 1;
 }
@@ -62,4 +62,25 @@
 
 #loginButton{
     -fx-min-width:100;
+}
+
+#userList{
+    -fx-background-color: transparent;
+}
+
+#mainHbox{
+    -fx-background-color: #fff;
+    -fx-background-radius: 8 8 8 8;
+    -fx-border-radius: 8 8 8 8;
+    -fx-border-color: #1f1f1f;
+}
+
+#vbox{
+    -fx-background-color: transparent;
+}
+#regMessage{
+    -fx-background: #fff;
+    -fx-font-size: 12;
+    -fx-opacity: 1;
+    -fx-pref-height: 50px;
 }

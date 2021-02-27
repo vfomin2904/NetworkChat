@@ -1,0 +1,30 @@
+<?import javafx.scene.layout.AnchorPane?>
+<?import java.net.URL?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<AnchorPane fx:controller="RegController"
+            xmlns:fx="http://javafx.com/fxml" fx:id="mainAncor">
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <VBox fx:id="loginForm" prefWidth="${mainAncor.width}" AnchorPane.topAnchor="40" AnchorPane.rightAnchor="50"
+          AnchorPane.leftAnchor="50" spacing="10">
+
+        <TextField promptText="Логин" VBox.vgrow="ALWAYS" fx:id="login"/>
+        <PasswordField promptText="Пароль" VBox.vgrow="ALWAYS" fx:id="pass"/>
+        <TextField promptText="Ник" VBox.vgrow="ALWAYS" fx:id="nickname"/>
+
+        <Button text="Регистрация" fx:id="regButton" VBox.vgrow="ALWAYS" maxWidth="Infinity" onAction="#registration"/>
+        <TextArea disable="true" fx:id="regMessage" AnchorPane.rightAnchor="50"
+                  AnchorPane.leftAnchor="50" AnchorPane.topAnchor="80" visible="false"/>
+    </VBox>
+
+
+
+</AnchorPane>
