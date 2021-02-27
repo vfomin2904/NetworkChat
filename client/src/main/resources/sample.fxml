@@ -17,6 +17,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ListView?>
 <AnchorPane fx:controller="Controller"
             xmlns:fx="http://javafx.com/fxml" fx:id="mainAncor">
 
@@ -24,23 +25,29 @@
         <URL value="@/css/style.css"/>
     </stylesheets>
 
-    <StackPane fx:id="mainStack"  AnchorPane.leftAnchor="50" AnchorPane.bottomAnchor="150" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="25">
-    <ScrollPane fx:id="scroll" >
+    <HBox fx:id="mainHbox" AnchorPane.bottomAnchor="150" AnchorPane.rightAnchor="25" AnchorPane.topAnchor="25" AnchorPane.leftAnchor="25">
+    <ScrollPane HBox.hgrow="ALWAYS" fx:id="scroll">
         <VBox fx:id="vbox" spacing="10.0">
 
         </VBox>
     </ScrollPane>
-    </StackPane>
-<!--    <TextArea disable="true" fx:id="chatArea" AnchorPane.leftAnchor="50" AnchorPane.bottomAnchor="175" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="25"></TextArea>-->
-    <TextField fx:id="inputField" AnchorPane.bottomAnchor="120" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50"
+    <ListView onMouseReleased="#selectUser" visible="false" managed="false" HBox.hgrow="ALWAYS" minWidth="100" maxWidth="200" fx:id="userList" >
+    </ListView>
+    </HBox>
+    <TextField fx:id="inputField" AnchorPane.bottomAnchor="120" AnchorPane.leftAnchor="25" AnchorPane.rightAnchor="25"
                onAction="#sendButton" visible="false" managed="false"/>
 
     <Button id="sendButton" fx:id="buttonPane" text="Отправить сообщение" AnchorPane.bottomAnchor="50"  AnchorPane.leftAnchor="50"
             AnchorPane.rightAnchor="50" onAction="#sendButton" visible="false" managed="false"/>
 
-    <HBox fx:id="loginForm" prefWidth="${mainAncor.width}" AnchorPane.bottomAnchor="40" AnchorPane.rightAnchor="50" AnchorPane.leftAnchor="50" spacing="10">
-        <TextField promptText="Логин" HBox.hgrow="ALWAYS" fx:id="login"/>
-        <PasswordField promptText="Пароль" HBox.hgrow="ALWAYS" fx:id="pass"/>
-        <Button text="Войти" fx:id="loginButton"  HBox.hgrow="ALWAYS"  onAction="#login"/>
-    </HBox>
+    <VBox fx:id="loginForm" prefWidth="${mainAncor.width}" AnchorPane.bottomAnchor="40" AnchorPane.rightAnchor="50" AnchorPane.leftAnchor="50" spacing="10">
+        <HBox spacing="10">
+            <TextField promptText="Логин" HBox.hgrow="ALWAYS" fx:id="login"/>
+            <PasswordField promptText="Пароль" HBox.hgrow="ALWAYS" fx:id="pass"/>
+        </HBox>
+        <HBox spacing="10">
+            <Button text="Войти" fx:id="loginButton"  HBox.hgrow="ALWAYS" maxWidth="Infinity"   onAction="#login"/>
+            <Button text="Регистрация" fx:id="regButton" HBox.hgrow="ALWAYS" maxWidth="Infinity"  onAction="#showRegWindow"/>
+        </HBox>
+    </VBox>
 </AnchorPane>

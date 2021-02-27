@@ -1,4 +1,3 @@
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -30,11 +29,13 @@ public class Server {
 
     public void subscribe(ClientHandler client) {
         clients.add(client);
+        sendUsersList();
     }
 
     public void unsubscribe(ClientHandler client) {
         clients.remove(client);
         System.out.println("Клиент покинул чат");
+        sendUsersList();
     }
 
     public void sendMsg(String msg) throws IOException {
@@ -44,7 +45,7 @@ public class Server {
     }
 
     public String authorize(String login, String pass){
-        return users.getUserByLoginAndPassword(login, pass);
+            return users.getUserByLoginAndPassword(login, pass);
     }
 
     private void fillUsers(){
@@ -65,5 +66,37 @@ public class Server {
             senderHandler.sendMsg("Пользователь "+nick+" не в сети");
         }
 
+    }
+
+    public boolean checkConnect(String nick){
+        for (ClientHandler client : clients) {
+            if(client.getNick().equals(nick)){
+               return false;
+            }
+        }
+        return true;
+    }
+
+    public void sendUsersList(){
+        StringBuilder msg = new StringBuilder(Commands.USERS_LIST);
+        for(ClientHandler client : clients){
+            msg.append(" ").append(client.getNick());
+        }
+        try {
+            sendMsg(msg.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void reg(String login, String password, String nickname, ClientHandler client) {
+        if(users.searchByLogin(login)){
+            client.sendMsg(Commands.REG_ERROR+" Логин "+login+" уже существует");
+        } else if(users.searchByNick(nickname)){
+            client.sendMsg(Commands.REG_ERROR+" Ник "+nickname+" уже существует");
+        } else{
+            users.addUser(login,password,nickname);
+            client.sendMsg(Commands.REG_OK);
+        }
     }
 }

@@ -20,8 +20,6 @@ public class ClientHandler {
         this.in = new DataInputStream(socket.getInputStream());
         this.out = new DataOutputStream(socket.getOutputStream());
 
-        server.subscribe(this);
-
         new Thread(() -> {
             try {
                 while (true) {
@@ -36,7 +34,13 @@ public class ClientHandler {
                             if(auth.length == 3) {
                                 nick = server.authorize(auth[1], auth[2]);
                                 if(!nick.equals("")) {
-                                    out.writeUTF(Commands.AUTH_OK+" " + nick);
+                                    if(server.checkConnect(nick)){
+                                        server.subscribe(this);
+                                        out.writeUTF(Commands.AUTH_OK+" " + nick);
+                                    }
+                                    else{
+                                        out.writeUTF(Commands.USER_ALREADY_CONNECT+" " + nick);
+                                    }
                                 } else{
                                     out.writeUTF(Commands.AUTH_ERROR);
                                 }
@@ -46,6 +50,12 @@ public class ClientHandler {
                             String[] message = msg.split("\s", 3);
                             if(message.length == 3) {
                                 server.sendPersonalMessage(message[1], message[2], nick, this);
+                            }
+                        }
+                        else if(msg.startsWith(Commands.REG)){
+                            String[] message = msg.split("\s", 4);
+                            if(message.length == 4) {
+                                server.reg(message[1], message[2], message[3], this);
                             }
                         }
                         continue;
@@ -77,12 +87,15 @@ public class ClientHandler {
 
     public boolean sendPersonalMsg(String nickname, String message, String sender, ClientHandler senderHandler){
         if(nick.equals(nickname)){
-            sendMsg(sender+"(personal) : "+message);
-            senderHandler.sendMsg(sender+"(personal for "+nickname+") : "+message);
+            sendMsg("["+sender+"](personal) : "+message);
+            senderHandler.sendMsg("["+sender+"] to ["+nickname+"] : "+message);
             return true;
         }
         return false;
     }
 
 
+    public String getNick() {
+        return nick;
+    }
 }

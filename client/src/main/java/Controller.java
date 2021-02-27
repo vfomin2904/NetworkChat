@@ -1,13 +1,22 @@
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
@@ -18,10 +27,7 @@ import java.util.function.Predicate;
 
 public class Controller implements Initializable {
 
-    public TextField login;
-    public PasswordField pass;
-    public Button buttonPane;
-    public HBox loginForm;
+
     private DataInputStream in;
     private DataOutputStream out;
     private Socket socket;
@@ -29,6 +35,8 @@ public class Controller implements Initializable {
     private final int PORT = 8981;
     private String nick;
     private boolean authorize;
+    private Stage regStage;
+    private RegController regController;
 
     @FXML
     public TextField inputField;
@@ -36,6 +44,12 @@ public class Controller implements Initializable {
     public VBox vbox;
     @FXML
     public ScrollPane scroll;
+    @FXML
+    public ListView<String> userList;
+    public TextField login;
+    public PasswordField pass;
+    public Button buttonPane;
+    public VBox loginForm;
 
 
     public void sendButton(ActionEvent actionEvent) {
@@ -49,8 +63,8 @@ public class Controller implements Initializable {
 
     public void sendMessage(String msg) {
 
-        if(!msg.startsWith("/")){
-            msg = nick+" : "+msg;
+        if (!msg.startsWith("/")) {
+            msg = "[" + nick + "] : " + msg;
         }
 
         try {
@@ -75,7 +89,7 @@ public class Controller implements Initializable {
 
             Text f = new Text(formatForDateNow.format(dateNow));
             f.setStyle("-fx-font-size: 10;");
-            Text f1 = new Text(" "+msg);
+            Text f1 = new Text(" " + msg);
             f1.setStyle("-fx-font-size: 14;");
 
             HBox hbox = new HBox();
@@ -98,7 +112,7 @@ public class Controller implements Initializable {
     public void login(ActionEvent actionEvent) {
         String userLogin = login.getText();
         String userPassword = pass.getText();
-        sendMessage(Commands.AUTH+" " + userLogin + " " + userPassword);
+        sendMessage(Commands.AUTH + " " + userLogin + " " + userPassword);
     }
 
     private void connect() {
@@ -112,21 +126,34 @@ public class Controller implements Initializable {
                     while (true) {
                         try {
                             String msg = in.readUTF();
-                            if(msg.startsWith("/")){
-                                if(msg.startsWith(Commands.AUTH_OK)){
+                            if (msg.startsWith("/")) {
+                                if (msg.startsWith(Commands.AUTH_OK)) {
                                     String[] words = msg.split("\s", 2);
                                     nick = words[1];
                                     authorize = true;
                                     authorizeUser();
-                                }
-                                if(msg.startsWith(Commands.AUTH_ERROR)){
+                                } else if (msg.startsWith(Commands.AUTH_ERROR)) {
                                     nick = "";
                                     authorize = false;
                                     printMsg("Неверно введены логин/пароль");
+                                } else if (msg.startsWith(Commands.USER_ALREADY_CONNECT)) {
+                                    String[] words = msg.split("\s", 2);
+                                    nick = words[1];
+                                    authorize = false;
+                                    printMsg("Пользователь " + nick + " уже в сети");
+                                } else if (msg.startsWith(Commands.USERS_LIST)) {
+                                    String[] users = msg.split("\s");
+                                    fillUsersList(users);
+                                }
+                                else if (msg.startsWith(Commands.REG_ERROR)) {
+                                    String[] regInfo = msg.split("\s", 2);
+                                    regController.printRegInfo("Не удалось зарегистрировать пользователя: "+regInfo[1]);
+                                } else if (msg.startsWith(Commands.REG_OK)) {
+                                    regController.printRegInfo("Регистрация прошла успешно");
                                 }
                                 continue;
                             }
-                            if(authorize) {
+                            if (authorize) {
                                 printMsg(msg);
                             }
                         } catch (IOException e) {
@@ -154,16 +181,25 @@ public class Controller implements Initializable {
         t1.start();
     }
 
-
-    private void setTitle(){
+    private void fillUsersList(String[] users) {
         Platform.runLater(() -> {
-            Stage stage = (Stage) inputField.getScene().getWindow();
-            stage.setTitle("Сетевой чат ("+nick+")");
+            userList.getItems().clear();
+            for (int i = 1; i < users.length; i++) {
+                userList.getItems().add(users[i]);
+            }
         });
     }
 
-    private void authorizeUser(){
-        if(authorize){
+
+    private void setTitle() {
+        Platform.runLater(() -> {
+            Stage stage = (Stage) inputField.getScene().getWindow();
+            stage.setTitle("Сетевой чат (" + nick + ")");
+        });
+    }
+
+    private void authorizeUser() {
+        if (authorize) {
             Platform.runLater(() -> {
                 inputField.clear();
                 inputField.requestFocus();
@@ -173,6 +209,9 @@ public class Controller implements Initializable {
                 buttonPane.setVisible(true);
                 inputField.setManaged(true);
                 buttonPane.setManaged(true);
+                userList.setVisible(true);
+                userList.setManaged(true);
+                scroll.setStyle("-fx-background-radius: 8 0 0 8;");
                 vbox.getChildren().removeIf(new Predicate<Node>() {
                     @Override
                     public boolean test(Node node) {
@@ -181,6 +220,51 @@ public class Controller implements Initializable {
                 });
                 setTitle();
             });
+        }
+    }
+
+
+    public void selectUser(MouseEvent mouseEvent) {
+        try {
+            inputField.setText(Commands.PRIVATE_MESSAGE + " " + userList.getSelectionModel().getSelectedItems().get(0) + " ");
+        } catch (RuntimeException e){
+
+        }
+    }
+
+    public void showRegWindow(ActionEvent actionEvent){
+        if(regStage == null){
+            initRegWindow();
+        }
+        regStage.show();
+    }
+
+    public void initRegWindow() {
+
+        try{
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("registration.fxml"));
+            Parent root = fxmlLoader.load();
+            regController = fxmlLoader.getController();
+            regController.setMainController(this);
+
+            regStage = new Stage();
+            regStage.setTitle("Сетевой чат: регистрация");
+            regStage.getIcons().add(new Image("image/icon.png"));
+            regStage.setScene(new Scene(root, 450, 350));
+            regStage.initStyle(StageStyle.UTILITY);
+            regStage.initModality(Modality.APPLICATION_MODAL);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void reg(String log, String password, String nick) {
+        try {
+            out.writeUTF(Commands.REG+" "+log+" "+password+" "+nick);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
