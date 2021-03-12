@@ -14,7 +14,6 @@ public class ClientHandler {
     private DataOutputStream out;
     private String nick = "";
 
-
     public ClientHandler(Server server, Socket socket) throws IOException {
 
         this.server = server;
@@ -41,6 +40,7 @@ public class ClientHandler {
                                         server.subscribe(this);
                                         out.writeUTF(Commands.AUTH_OK+" " + nick);
                                         socket.setSoTimeout(0);
+                                        server.getHistory(this);
                                     }
                                     else{
                                         out.writeUTF(Commands.USER_ALREADY_CONNECT+" " + nick);
@@ -71,7 +71,7 @@ public class ClientHandler {
                         continue;
                     }
                     System.out.println("Client: " + msg);
-                    server.sendMsg(msg);
+                    server.sendMsg(msg, true);
 
                 }
             }catch(SocketTimeoutException e){
@@ -119,4 +119,5 @@ public class ClientHandler {
     public void setNick(String nick) {
         this.nick = nick;
     }
+
 }

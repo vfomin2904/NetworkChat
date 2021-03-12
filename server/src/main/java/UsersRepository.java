@@ -10,6 +10,7 @@ public class UsersRepository implements UsersService {
     private PreparedStatement searchByLoginStm;
     private PreparedStatement searchByNickStm;
     private PreparedStatement updateNick;
+    private PreparedStatement getNickById;
 
     UsersRepository() {
 
@@ -31,6 +32,7 @@ public class UsersRepository implements UsersService {
         searchByLoginStm = conn.prepareStatement("SELECT * FROM networkchat.users WHERE login = ?");
         searchByNickStm = conn.prepareStatement("SELECT * FROM networkchat.users WHERE nick = ?");
         updateNick = conn.prepareStatement("UPDATE networkchat.users SET nick = ? WHERE nick = ?");
+        getNickById = conn.prepareStatement("SELECT * FROM networkchat.users WHERE id = ?");
     }
 
     public void disconnect(){
@@ -41,6 +43,7 @@ public class UsersRepository implements UsersService {
             searchByLoginStm.close();
             searchByNickStm.close();
             updateNick.close();
+            getNickById.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -95,10 +98,23 @@ public class UsersRepository implements UsersService {
         return true;
     }
 
+    public Integer getIdByNick(String nick) throws SQLException {
+        searchByNickStm.setString(1, nick);
+        ResultSet result = searchByNickStm.executeQuery();
+        result.next();
+        return result.getInt("id");
+    }
+
     public void updateNick(String newNick, String oldNick) throws SQLException {
         updateNick.setString(1, newNick);
         updateNick.setString(2, oldNick);
         updateNick.executeUpdate();
     }
 
+    public String getNickById(Integer id) throws SQLException {
+        getNickById.setInt(1, id);
+        ResultSet result = getNickById.executeQuery();
+        result.next();
+        return result.getString("nick");
+    }
 }

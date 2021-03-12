@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.UnaryOperator;
@@ -46,8 +47,15 @@ public class Server {
         sendUsersList();
     }
 
-    public void sendMsg(String msg) throws IOException {
-        msgRepository.addMessage(msg, , 0);
+    public void sendMsg(String msg, boolean save) throws IOException {
+        if(save){
+            try {
+                msgRepository.addMessage(msg, 0, 0);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
         for (ClientHandler client : clients) {
             client.sendMsg(msg);
         }
@@ -79,6 +87,14 @@ public class Server {
             senderHandler.sendMsg("Пользователь " + nick + " не в сети");
         }
 
+        try {
+            Integer receiverId = repository.getIdByNick(nick);
+            Integer senderId = repository.getIdByNick(senderHandler.getNick());
+            msgRepository.addMessage(message, senderId, receiverId);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
     }
 
     public boolean checkConnect(String nick) {
@@ -96,7 +112,7 @@ public class Server {
             msg.append(" ").append(client.getNick());
         }
         try {
-            sendMsg(msg.toString());
+            sendMsg(msg.toString(), false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,7 +141,7 @@ public class Server {
             }else{
                 String oldNick = clientHandler.getNick();
                 repository.updateNick(newNick, oldNick);
-                sendMsg("Пользователь "+oldNick+" сменил имя на "+newNick);
+                sendMsg("Пользователь "+oldNick+" сменил имя на "+newNick, false);
                 clientHandler.setNick(newNick);
                 sendUsersList();
             }
@@ -133,6 +149,26 @@ public class Server {
             clientHandler.sendMsg("Не удалось изменить имя пользователя");
         }catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void getHistory(ClientHandler client) {
+        try {
+            Integer clientId = repository.getIdByNick(client.getNick());
+            ResultSet history = msgRepository.getHistory(clientId);
+            while(history.next()){
+                int receiver = history.getInt("receiver");
+                int sender = history.getInt("sender");
+                String message = history.getString("message");
+                if(receiver > 0 && sender > 0){
+                    message = "["+repository.getNickById(sender)+"] to ["+repository.getNickById(receiver)+"] :"+message;
+                }
+                System.out.println(message);
+                client.sendMsg(message);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 }
