@@ -62,6 +62,12 @@ public class ClientHandler {
                                 server.reg(message[1], message[2], message[3], this);
                             }
                         }
+                        else if(msg.startsWith(Commands.CHANGE_NICK)){
+                            String[] message = msg.split("\s", 2);
+                            if(message.length == 2) {
+                                server.changeNick(message[1],this);
+                            }
+                        }
                         continue;
                     }
                     System.out.println("Client: " + msg);
@@ -108,5 +114,9 @@ public class ClientHandler {
 
     public String getNick() {
         return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick;
     }
 }
