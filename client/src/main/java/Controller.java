@@ -28,6 +28,8 @@ import java.util.function.Predicate;
 public class Controller implements Initializable {
 
 
+    public HBox changeNick;
+    public TextField newNick;
     private DataInputStream in;
     private DataOutputStream out;
     private Socket socket;
@@ -127,7 +129,10 @@ public class Controller implements Initializable {
                         try {
                             String msg = in.readUTF();
                             if (msg.startsWith("/")) {
-                                if (msg.startsWith(Commands.AUTH_OK)) {
+                                if (msg.startsWith(Commands.END)) {
+                                    printMsg("Сервер закрыл соединение");
+                                    break;
+                                } else if (msg.startsWith(Commands.AUTH_OK)) {
                                     String[] words = msg.split("\s", 2);
                                     nick = words[1];
                                     authorize = true;
@@ -211,6 +216,8 @@ public class Controller implements Initializable {
                 buttonPane.setManaged(true);
                 userList.setVisible(true);
                 userList.setManaged(true);
+                changeNick.setManaged(true);
+                changeNick.setVisible(true);
                 scroll.setStyle("-fx-background-radius: 8 0 0 8;");
                 vbox.getChildren().removeIf(new Predicate<Node>() {
                     @Override
@@ -265,6 +272,18 @@ public class Controller implements Initializable {
             out.writeUTF(Commands.REG+" "+log+" "+password+" "+nick);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void changeNick(ActionEvent actionEvent) {
+        try {
+            String nick = newNick.getText();
+            if(nick.trim().length()>0){
+                out.writeUTF(Commands.CHANGE_NICK+" "+nick);
+                newNick.clear();
+            }
+        } catch (IOException e) {
+            printMsg("Не удалось сменить ник");
         }
     }
 }

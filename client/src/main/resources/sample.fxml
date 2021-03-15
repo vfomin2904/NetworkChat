@@ -40,6 +40,11 @@
     <Button id="sendButton" fx:id="buttonPane" text="Отправить сообщение" AnchorPane.bottomAnchor="50"  AnchorPane.leftAnchor="50"
             AnchorPane.rightAnchor="50" onAction="#sendButton" visible="false" managed="false"/>
 
+    <HBox spacing="10" AnchorPane.bottomAnchor="5" AnchorPane.leftAnchor="30" AnchorPane.rightAnchor="30" fx:id="changeNick" visible="false" managed="false">
+        <TextField HBox.hgrow="ALWAYS" fx:id="newNick"/>
+        <Button HBox.hgrow="ALWAYS" text="Сменить ник" onAction="#changeNick"/>
+    </HBox>
+
     <VBox fx:id="loginForm" prefWidth="${mainAncor.width}" AnchorPane.bottomAnchor="40" AnchorPane.rightAnchor="50" AnchorPane.leftAnchor="50" spacing="10">
         <HBox spacing="10">
             <TextField promptText="Логин" HBox.hgrow="ALWAYS" fx:id="login"/>
