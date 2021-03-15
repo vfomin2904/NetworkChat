@@ -20,6 +20,7 @@ import javafx.stage.StageStyle;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
@@ -39,6 +40,7 @@ public class Controller implements Initializable {
     private boolean authorize;
     private Stage regStage;
     private RegController regController;
+    private FileOutputStream historyOut;
 
     @FXML
     public TextField inputField;
@@ -84,6 +86,13 @@ public class Controller implements Initializable {
 
     private void printMsg(String msg) {
 
+        if(historyOut != null) {
+            try {
+                historyOut.write((msg + "\n").getBytes(StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         Platform.runLater(() -> {
             Date dateNow = new Date();
@@ -135,8 +144,16 @@ public class Controller implements Initializable {
                                 } else if (msg.startsWith(Commands.AUTH_OK)) {
                                     String[] words = msg.split("\s", 2);
                                     nick = words[1];
+                                    String filename = "histrory_"+login.getText()+".txt";
+
+
                                     authorize = true;
-                                    authorizeUser();
+                                    authorizeUser(filename);
+                                    try {
+                                        historyOut = new FileOutputStream(filename, true);
+                                    } catch (FileNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
                                 } else if (msg.startsWith(Commands.AUTH_ERROR)) {
                                     nick = "";
                                     authorize = false;
@@ -175,6 +192,7 @@ public class Controller implements Initializable {
             } finally {
                 try {
                     socket.close();
+                    historyOut.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -203,7 +221,7 @@ public class Controller implements Initializable {
         });
     }
 
-    private void authorizeUser() {
+    private void authorizeUser(String filename) {
         if (authorize) {
             Platform.runLater(() -> {
                 inputField.clear();
@@ -227,6 +245,17 @@ public class Controller implements Initializable {
                 });
                 setTitle();
             });
+
+            try(BufferedReader historyIn = new BufferedReader(new FileReader(filename));){
+                String line;
+                System.out.println("line");
+                while((line = historyIn.readLine()) != null){
+                    System.out.println(line);
+                    printMsg(line);
+                }
+            } catch(IOException e){
+
+            }
         }
     }
 
