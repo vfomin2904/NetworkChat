@@ -20,8 +20,10 @@ import javafx.stage.StageStyle;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.Buffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
@@ -246,15 +248,17 @@ public class Controller implements Initializable {
                 setTitle();
             });
 
+            ArrayList<String> messages = new ArrayList<>();
             try(BufferedReader historyIn = new BufferedReader(new FileReader(filename));){
                 String line;
-                System.out.println("line");
                 while((line = historyIn.readLine()) != null){
-                    System.out.println(line);
-                    printMsg(line);
+                    messages.add(line);
                 }
             } catch(IOException e){
 
+            }
+            for(int i = 100; i > 0; i--){
+                printMsg(messages.get(messages.size()-i));
             }
         }
     }
