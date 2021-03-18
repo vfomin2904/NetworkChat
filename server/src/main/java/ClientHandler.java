@@ -22,7 +22,7 @@ public class ClientHandler {
         this.out = new DataOutputStream(socket.getOutputStream());
         socket.setSoTimeout(120000);
 
-        new Thread(() -> {
+        server.getExecutorService().execute(() -> {
             try {
                 while (true) {
                     String msg = in.readUTF();
@@ -91,7 +91,7 @@ public class ClientHandler {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
     public void sendMsg(String msg) {

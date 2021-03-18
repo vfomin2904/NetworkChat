@@ -4,6 +4,9 @@ import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.UnaryOperator;
 
 public class Server {
@@ -13,12 +16,14 @@ public class Server {
     private UsersService users;
     private UsersRepository repository;
     private Messages msgRepository;
+    private ExecutorService executorService;
 
     Server() {
 //        users = new UsersListService();
         repository = new UsersRepository();
 //        fillUsers();
         msgRepository = new Messages();
+        executorService = Executors.newCachedThreadPool();
         try (ServerSocket server = new ServerSocket(PORT);) {
             System.out.println("Server started");
 
@@ -34,6 +39,10 @@ public class Server {
         }finally{
             repository.disconnect();
         }
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public void subscribe(ClientHandler client) {
