@@ -1,3 +1,4 @@
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,6 +9,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.UnaryOperator;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 public class Server {
 
@@ -17,16 +20,36 @@ public class Server {
     private UsersRepository repository;
     private Messages msgRepository;
     private ExecutorService executorService;
+    private  Logger loger;
+    private  Handler handlerFile;
 
     Server() {
-//        users = new UsersListService();
+        loger = Logger.getLogger(Server.class.getName());
+        try {
+            handlerFile = new FileHandler("log%g.log", 10*1024, 10, true);
+            handlerFile.setFilter(new Filter() {
+                @Override
+                public boolean isLoggable(LogRecord record) {
+                    return record.getLevel().equals(Level.SEVERE);
+                }
+            });
+            handlerFile.setFormatter(new Formatter() {
+                @Override
+                public String format(LogRecord record) {
+                    return String.format(">>> (%s) %s ecxeption: %s", record.getLevel(), record.getMessage(), record.getThrown());
+                }
+            });
+            loger.addHandler(handlerFile);
+            loger.setLevel(Level.INFO);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         repository = new UsersRepository();
-//        fillUsers();
         msgRepository = new Messages();
         executorService = Executors.newCachedThreadPool();
         try (ServerSocket server = new ServerSocket(PORT);) {
-            System.out.println("Server started");
-
+//            System.out.println("Server started");
+            loger.info("Server started");
 
             while (true) {
                 Socket socket = server.accept();
@@ -52,7 +75,8 @@ public class Server {
 
     public void unsubscribe(ClientHandler client) {
         clients.remove(client);
-        System.out.println("Клиент покинул чат");
+//        System.out.println("Клиент покинул чат");
+        loger.info("Клиент покинул чат");
         sendUsersList();
     }
 
@@ -156,6 +180,7 @@ public class Server {
             }
         } catch (SQLException e) {
             clientHandler.sendMsg("Не удалось изменить имя пользователя");
+            loger.log(Level.SEVERE, "Не удалось изменить имя пользователя", e);
         }catch (IOException e) {
             e.printStackTrace();
         }
@@ -175,9 +200,12 @@ public class Server {
                 System.out.println(message);
                 client.sendMsg(message);
             }
+            throw new SQLException();
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+            loger.log(Level.SEVERE, "Не удалось получить историю сообщений", throwables);
+
         }
     }
 }
