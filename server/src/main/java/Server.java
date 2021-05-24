@@ -172,8 +172,7 @@ public class Server {
                 if(receiver > 0 && sender > 0){
                     message = "["+repository.getNickById(sender)+"] to ["+repository.getNickById(receiver)+"] :"+message;
                 }
-                System.out.println(message);
-                client.sendMsg(message);
+//                client.sendMsg(message);
             }
 
         } catch (SQLException throwables) {
